@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.env
+postgres_bin/
+postgres_data/
+postgres.zip
+postgres_log.txt
+*.db
