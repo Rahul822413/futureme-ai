@@ -127,17 +127,17 @@ async function seedDemoUsers() {
     const studentPass = bcrypt.hashSync('student123', 10);
     const adminPass = bcrypt.hashSync('admin123', 10);
 
-    await db.run(\`INSERT INTO users (id, name, email, password, role, is_admin) VALUES ($1, $2, $3, $4, $5, $6)\`, 
+    await db.run(`INSERT INTO users (id, name, email, password, role, is_admin) VALUES ($1, $2, $3, $4, $5, $6)`, 
       [studentId, 'Demo Student', 'student@futureme.ai', studentPass, 'student', 0]);
 
-    await db.run(\`INSERT INTO users (id, name, email, password, role, is_admin) VALUES ($1, $2, $3, $4, $5, $6)\`, 
+    await db.run(`INSERT INTO users (id, name, email, password, role, is_admin) VALUES ($1, $2, $3, $4, $5, $6)`, 
       [adminId, 'Admin User', 'admin@futureme.ai', adminPass, 'admin', 1]);
 
     // Seed a demo profile for student
-    await db.run(\`INSERT INTO profiles (id, user_id, age, education, field, current_year,
+    await db.run(`INSERT INTO profiles (id, user_id, age, education, field, current_year,
       coding_skill, communication_skill, ai_knowledge, problem_solving, leadership, creativity, financial_discipline,
       career_goal, skill_goal, coding_hours, learning_hours, social_media_usage, consistency_level)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19) ON CONFLICT DO NOTHING\`,
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19) ON CONFLICT DO NOTHING`,
       [uuidv4(), studentId, 20, 'B.Tech', 'Computer Science', '2nd Year',
         7, 5, 6, 7, 4, 6, 5, 'Software Engineer', 'AI and Full-Stack Development', 2, 1.5, 3, 6]);
 
