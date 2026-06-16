@@ -16,6 +16,8 @@ services:
         value: "20"
       - key: GEMINI_API_KEY
         sync: false
+      - key: JWT_SECRET
+        value: c8d9e2b1f4a6730cd9a4358f2e1a3b8d7c4f6a9b2d1e0f3c6b5a8d7e9f2a4c1
 
 databases:
   - name: futureme-db
