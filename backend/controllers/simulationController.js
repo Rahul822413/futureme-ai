@@ -79,14 +79,14 @@ const generateSimulation = async (req, res) => {
 
     // Save to DB
     const id = uuidv4();
-    await db.get(`INSERT INTO simulations (id,user_id,decision_text,skill_score,consistency_score,career_readiness_score,risk_score,
+    await db.run(`INSERT INTO simulations (id,user_id,decision_text,skill_score,consistency_score,career_readiness_score,risk_score,
       growth_projection,optimistic_scenario,realistic_scenario,risk_scenario,timeline,recommendations)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`)
-      .run(id, userId, decisionText, skillScore, consistencyScore, careerReadinessScore, riskScore,
-        JSON.stringify(growthProjection), JSON.stringify(optimistic), JSON.stringify(realistic),
-        JSON.stringify({ ...risk, ...riskAnalysis }), JSON.stringify(timeline), JSON.stringify(recommendations));
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+      id, userId, decisionText, skillScore, consistencyScore, careerReadinessScore, riskScore,
+      JSON.stringify(growthProjection), JSON.stringify(optimistic), JSON.stringify(realistic),
+      JSON.stringify({ ...risk, ...riskAnalysis }), JSON.stringify(timeline), JSON.stringify(recommendations));
 
-    const simulation = db.prepare('SELECT * FROM simulations WHERE id = ?', id);
+    const simulation = await db.get('SELECT * FROM simulations WHERE id = ?', id);
     const parsed = parseSimulation(simulation);
     res.status(201).json({ success: true, simulation: parsed });
   } catch (err) {

@@ -42,17 +42,17 @@ const createProfile = async (req, res) => {
         p.higherStudiesGoal, p.startupInterest ? 1 : 0, p.skillGoal, p.codingHours, p.learningHours,
         p.communicationPractice, p.projectFrequency, p.readingHabit, p.socialMediaUsage, p.consistencyLevel, githubUsername, userId);
     } else {
-      await db.get(`INSERT INTO profiles (id,user_id,age,education,field,current_year,coding_skill,communication_skill,
+      await db.run(`INSERT INTO profiles (id,user_id,age,education,field,current_year,coding_skill,communication_skill,
         ai_knowledge,problem_solving,leadership,creativity,financial_discipline,career_goal,higher_studies_goal,
         startup_interest,skill_goal,coding_hours,learning_hours,communication_practice,project_frequency,
-        reading_habit,social_media_usage,consistency_level,github_username) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
-        .run(id, userId, p.age, p.education, p.field, p.currentYear, p.codingSkill, p.communicationSkill,
-          p.aiKnowledge, p.problemSolving, p.leadership, p.creativity, p.financialDiscipline, p.careerGoal,
-          p.higherStudiesGoal, p.startupInterest ? 1 : 0, p.skillGoal, p.codingHours, p.learningHours,
-          p.communicationPractice, p.projectFrequency, p.readingHabit, p.socialMediaUsage, p.consistencyLevel, githubUsername);
+        reading_habit,social_media_usage,consistency_level,github_username) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+        id, userId, p.age, p.education, p.field, p.currentYear, p.codingSkill, p.communicationSkill,
+        p.aiKnowledge, p.problemSolving, p.leadership, p.creativity, p.financialDiscipline, p.careerGoal,
+        p.higherStudiesGoal, p.startupInterest ? 1 : 0, p.skillGoal, p.codingHours, p.learningHours,
+        p.communicationPractice, p.projectFrequency, p.readingHabit, p.socialMediaUsage, p.consistencyLevel, githubUsername);
     }
 
-    const profile = db.prepare('SELECT * FROM profiles WHERE user_id = ?', userId);
+    const profile = await db.get('SELECT * FROM profiles WHERE user_id = ?', userId);
     res.json({ success: true, profile });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
