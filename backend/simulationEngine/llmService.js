@@ -4,8 +4,8 @@ const generateNarratives = async (profile, decision, optimistic, realistic, risk
   if (!process.env.GEMINI_API_KEY) {
     console.warn("No GEMINI_API_KEY found. Using mock narratives.");
     return {
-      optimisticNarrative: "Five years from now, you wake up in your dream tech job. Your hard work has paid off, leading to rapid promotions and a fulfilling career...",
-      realisticNarrative: "In five years, you have a stable and respectable position. It wasn't always easy, but your consistent effort allowed you to build a solid foundation...",
+      optimisticNarrative: "Five years from now, you wake up in your dream professional role. Your hard work has paid off, leading to rapid promotions and a fulfilling career...",
+      realisticNarrative: "In five years, you have a stable and respectable position in your field. It wasn't always easy, but your consistent effort allowed you to build a solid foundation...",
       riskNarrative: "Fast forward five years: you faced significant hurdles. A lack of focus on key areas slowed your progress, but there's still time to pivot and recover..."
     };
   }

@@ -15,9 +15,9 @@ function analyzeRisks(profile, riskScore) {
   const projFreq = freqMap[profile.project_frequency] || 1;
 
   if (coding < 1) {
-    risks.push('Very low coding practice (< 1 hour/day)');
-    warnings.push('Skill atrophy risk – technical skills may stagnate');
-    recoveryPlan.push('Commit to at least 1 hour of hands-on coding daily');
+    risks.push('Very low dedicated practice/study (< 1 hour/day)');
+    warnings.push('Skill atrophy risk – core domain skills may stagnate');
+    recoveryPlan.push('Commit to at least 1 hour of hands-on practice daily');
   }
 
   if (social >= 5) {

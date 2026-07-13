@@ -1,80 +1,105 @@
-/**
- * Recommendation Generator
- * Produces personalized recommendations based on profile + decision
- */
-
 function generateRecommendations(profile, skillScore, consistencyScore, riskScore, decisionText) {
   const decision = (decisionText || '').toLowerCase();
-  const isAI = decision.includes('ai') || decision.includes('ml') || decision.includes('machine learning');
-  const isCoding = decision.includes('coding') || decision.includes('code') || decision.includes('programming');
-  const isComm = decision.includes('communication');
-  const isGATE = decision.includes('gate');
-  const isFreelance = decision.includes('freelanc');
+  const careerGoal = profile.career_goal || 'Professional';
+  const field = profile.field || 'General';
 
-  // --- Skills to Learn ---
-  let skills = ['Data Structures and Algorithms', 'Git & Version Control', 'System Design Fundamentals'];
-  if (isAI) skills = ['Python for Data Science', 'Machine Learning (scikit-learn)', 'Deep Learning (TensorFlow/PyTorch)', 'Data Analysis (Pandas, NumPy)', 'Model Deployment (Flask/FastAPI)', ...skills];
-  else if (isCoding) skills = ['Advanced DSA', 'Full-Stack Web Development', 'Database Design (SQL + NoSQL)', 'REST API Design', 'Testing and CI/CD', ...skills];
-  else if (isComm) skills = ['Public Speaking', 'Technical Writing', 'Active Listening', 'Presentation Design', 'Negotiation Skills', ...skills];
-  else if (isGATE) skills = ['Operating Systems', 'Computer Networks', 'Database Management Systems', 'Algorithms & Theory of Computation', 'Digital Logic & Computer Organization', ...skills];
-  else if (isFreelance) skills = ['Project Management', 'Client Communication', 'Contract & Pricing Strategy', 'Portfolio Development', 'Digital Marketing Basics', ...skills];
+  // Detect Domain
+  const combined = `${field} ${careerGoal}`.toLowerCase();
+  let domain = 'general';
+  if (combined.includes('medic') || combined.includes('health') || combined.includes('doctor') || combined.includes('nurs') || combined.includes('surgery')) domain = 'medicine';
+  else if (combined.includes('business') || combined.includes('finance') || combined.includes('mba') || combined.includes('market') || combined.includes('manage')) domain = 'business';
+  else if (combined.includes('art') || combined.includes('design') || combined.includes('ui/ux') || combined.includes('animat')) domain = 'design';
+  else if (combined.includes('law') || combined.includes('legal') || combined.includes('attorney')) domain = 'law';
+  else if (combined.includes('teach') || combined.includes('educat') || combined.includes('professor')) domain = 'education';
+  else if (combined.includes('computer') || combined.includes('software') || combined.includes('it') || combined.includes('tech') || combined.includes('ai') || combined.includes('engineer')) domain = 'tech';
 
-  // --- Courses ---
-  let courses = [];
-  if (isAI) courses = ['Machine Learning by Andrew Ng (Coursera)', 'Fast.ai Practical Deep Learning', 'CS229 Stanford (YouTube)', 'Kaggle Learn Micro-courses', 'Deep Learning Specialization (Coursera)'];
-  else if (isCoding) courses = ['The Odin Project (free, full-stack)', 'CS50 Harvard (free)', 'NeetCode 150 DSA course', 'Full-Stack Open (University of Helsinki)', 'The Complete Web Developer Bootcamp (Udemy)'];
-  else if (isComm) courses = ['Successful Presentation (Coursera – University of Colorado)', 'English for Career Development (Coursera)', 'Communication Skills for Engineers (LinkedIn Learning)', 'Technical Writing (Google on Coursera)'];
-  else if (isGATE) courses = ['NPTEL CS courses (free)', 'Gate Smashers YouTube', 'Made Easy / ACE Institute materials', 'Previous year GATE papers (GateOverflow)', 'Apni Kaksha / Love Babbar for CS fundamentals'];
-  else courses = ['Google Digital Skills courses (free)', 'MIT OpenCourseWare (free)', 'edX Professional Certificates', 'LinkedIn Learning Paths', 'YouTube structured playlists for your niche'];
+  const domainData = {
+    medicine: {
+      skills: ['Patient Communication', 'Clinical Diagnostics', 'Medical Research & Statistics', 'Healthcare Ethics', 'Advanced Anatomy/Physiology'],
+      courses: ['USMLE/NEET PG Prep Materials', 'Clinical Case Studies (BMJ)', 'Advanced Life Support (ALS)', 'Global Health (Coursera)', 'Medical Ethics Seminars'],
+      projects: ['Clinical Case Report Publication', 'Medical Outreach Volunteer', 'Healthcare Data Analysis', 'Hospital Elective Rotation', 'Shadowing a Specialist'],
+      careerPaths: ['Attending Physician', 'Surgical Specialist', 'Medical Researcher', 'Healthcare Administrator', 'Chief Medical Officer']
+    },
+    business: {
+      skills: ['Financial Modeling', 'Strategic Management', 'Data-Driven Decision Making', 'Negotiation', 'Market Analysis'],
+      courses: ['MBA Prep Courses', 'Financial Markets (Yale/Coursera)', 'Business Strategy (HBS Online)', 'Data Analytics for Business', 'Marketing Psychology'],
+      projects: ['Startup Business Plan', 'Industry Market Research Report', 'Financial Portfolio Analysis', 'Consulting Case Competitions', 'E-commerce Store Launch'],
+      careerPaths: ['Management Consultant', 'Investment Banker', 'Product Manager', 'Startup Founder', 'C-Suite Executive (CEO/CFO)']
+    },
+    design: {
+      skills: ['User Interface (UI) Design', 'User Experience (UX) Research', 'Typography & Color Theory', 'Prototyping (Figma/Adobe)', 'Design Thinking'],
+      courses: ['Google UX Design Certificate', 'Interaction Design Foundation', 'Advanced Figma Masterclass', 'Color Psychology', '3D Modeling Basics'],
+      projects: ['Full App Redesign Case Study', 'Daily UI Challenge (100 days)', 'Personal Branding Portfolio', 'Open-source Design System', 'Freelance Branding Project'],
+      careerPaths: ['UX/UI Designer', 'Art Director', 'Product Designer', 'Creative Director', 'Brand Strategist']
+    },
+    law: {
+      skills: ['Legal Drafting', 'Contract Negotiation', 'Argumentation & Logic', 'Case Law Research', 'Client Counseling'],
+      courses: ['LSAT/Bar Exam Prep', 'Corporate Law Foundations', 'Intellectual Property Law', 'Legal Writing Seminars', 'International Human Rights'],
+      projects: ['Moot Court Competitions', 'Legal Research Paper Publication', 'Law Clinic Pro-bono Work', 'Summer Clerkship', 'Legal Tech Startups Analysis'],
+      careerPaths: ['Corporate Lawyer', 'Litigator', 'In-House Counsel', 'Judge / Magistrate', 'Legal Consultant']
+    },
+    education: {
+      skills: ['Instructional Design', 'Student Psychology', 'Public Speaking', 'Curriculum Development', 'Educational Technology (EdTech)'],
+      courses: ['Advanced Pedagogy', 'Child/Adult Psychology', 'E-Learning Design', 'Special Education Needs (SEN)', 'Classroom Management'],
+      projects: ['Online Course Creation', 'Interactive Lesson Plan Development', 'Educational YouTube Channel', 'Student Mentorship Program', 'Research in Learning Methodologies'],
+      careerPaths: ['School Principal', 'University Professor', 'EdTech Founder', 'Curriculum Developer', 'Corporate Trainer']
+    },
+    tech: {
+      skills: ['Data Structures and Algorithms', 'System Design', 'Cloud Computing (AWS/GCP)', 'Version Control (Git)', 'CI/CD & Testing'],
+      courses: ['Machine Learning by Andrew Ng', 'The Odin Project (Full-stack)', 'NeetCode 150 DSA', 'CS50 Harvard', 'AWS Certified Solutions Architect'],
+      projects: ['Full-stack SaaS application', 'AI Chatbot integration', 'Open-source code contribution', 'Microservices architecture clone', 'High-traffic load testing simulation'],
+      careerPaths: ['Senior Software Engineer', 'AI/ML Engineer', 'Software Architect', 'Engineering Manager', 'CTO']
+    },
+    general: {
+      skills: ['Effective Communication', 'Project Management', 'Data Literacy', 'Time Management', 'Critical Thinking'],
+      courses: ['Project Management Professional (PMP)', 'Data Analysis Fundamentals', 'Leadership Psychology', 'Effective Communication', 'Strategic Thinking'],
+      projects: ['Industry Research Project', 'Cross-functional Team Leadership', 'Personal Portfolio/Blog', 'Process Optimization Initiative', 'Public Speaking Engagement'],
+      careerPaths: [`Senior ${careerGoal}`, `Lead ${careerGoal}`, 'Consultant', 'Department Head', 'Director']
+    }
+  };
 
-  // --- Projects ---
-  let projects = [];
-  if (isAI) projects = ['Movie Recommendation System (collaborative filtering)', 'Fake News Detector (NLP + BERT)', 'Image Classifier using CNN', 'Stock Price Predictor (LSTM)', 'Personal AI Chatbot (fine-tuned LLM)'];
-  else if (isCoding) projects = ['Full-stack To-Do App with authentication', 'E-commerce website with payment integration', 'Real-time Chat App (WebSockets)', 'URL Shortener with analytics', 'Portfolio website with animated UI'];
-  else if (isFreelance) projects = ['Client portfolio website', 'Freelance project tracker app', 'Invoice generator tool', 'niche SaaS MVP (one problem, one solution)', 'Automation scripts for local businesses'];
-  else if (isGATE) projects = ['OS Simulator (process scheduling algorithms)', 'Mini DBMS from scratch', 'Network packet analyzer', 'Compiler design project', 'OS kernel module in C'];
-  else projects = ['Personal portfolio website', 'Productivity tracker app', 'API integration project', 'Open-source contribution', 'Documentation for an existing tool'];
+  const data = domainData[domain];
 
   // --- Habits ---
   const habits = [];
-  if (Number(profile.coding_hours) < 2) habits.push('Increase daily coding to at least 2 hours');
+  if (Number(profile.coding_hours) < 2) habits.push('Increase daily dedicated practice/study to at least 2 hours');
   if (Number(profile.social_media_usage) >= 4) habits.push('Limit social media to 30 mins/day');
-  if (profile.project_frequency === 'rarely' || profile.project_frequency === 'never') habits.push('Build one project every 6–8 weeks');
-  habits.push('Read one technical article daily (Medium, dev.to, ArXiv)');
+  if (profile.project_frequency === 'rarely' || profile.project_frequency === 'never') habits.push('Complete a tangible project/case study every 6-8 weeks');
+  habits.push('Read one industry article or paper daily');
   habits.push('Write a weekly learning journal');
-  habits.push('Practice leetcode/coding problems for 30 mins daily');
-  habits.push('Review what you learned at the end of each day (spaced repetition)');
+  habits.push('Network with 1 new person in your industry weekly');
 
   // --- Weekly Plan ---
   const weeklyPlan = [
-    'Monday: 2h skill learning + 30min DSA',
-    'Tuesday: 2h project work + 30min reading',
-    'Wednesday: 2h skill learning + 30min communication practice',
-    'Thursday: 2h project work + 30min review',
-    'Friday: 2h learning + 30min portfolio update',
-    'Saturday: 4h project sprint + networking (LinkedIn)',
+    'Monday: 2h deep study + 30min review',
+    'Tuesday: 2h project/practical work + 30min reading',
+    'Wednesday: 2h deep study + 30min networking/communication',
+    'Thursday: 2h project/practical work + 30min review',
+    'Friday: 2h learning + 30min portfolio/resume update',
+    'Saturday: 4h deep work sprint + community engagement',
     'Sunday: Weekly review + plan next week goals',
   ];
 
   // --- Mistakes to avoid ---
   const mistakesToAvoid = [
-    'Tutorial hell – watching videos without building anything',
-    'Multitasking between too many technologies at once',
+    'Passive consumption – watching/reading without practicing',
+    'Multitasking between too many goals at once',
     'Comparing your progress to others instead of your past self',
     'Neglecting soft skills and communication practice',
-    'Not building a GitHub/portfolio to showcase work',
+    'Not building a public portfolio or professional footprint',
     'Skipping fundamentals and jumping to advanced topics',
-    'Not seeking feedback on your projects and code',
+    'Not seeking feedback from mentors or peers',
   ];
 
-  // --- Career Paths ---
-  const careerPaths = [];
-  if (isAI) careerPaths.push('AI/ML Engineer', 'Data Scientist', 'NLP Engineer', 'Computer Vision Engineer', 'AI Research Scientist');
-  else if (isCoding) careerPaths.push('Full-Stack Developer', 'Backend Engineer', 'Frontend Engineer', 'DevOps Engineer', 'Software Architect');
-  else if (isFreelance) careerPaths.push('Independent Consultant', 'Agency Founder', 'SaaS Entrepreneur', 'Technical Writer', 'Online Course Creator');
-  else careerPaths.push('Software Engineer', 'Product Manager', 'Technical Lead', 'Solutions Architect', 'Engineering Manager');
-
-  return { skills, courses, projects, habits, weeklyPlan, mistakesToAvoid, careerPaths };
+  return { 
+    skills: data.skills, 
+    courses: data.courses, 
+    projects: data.projects, 
+    habits, 
+    weeklyPlan, 
+    mistakesToAvoid, 
+    careerPaths: data.careerPaths 
+  };
 }
 
 module.exports = { generateRecommendations };

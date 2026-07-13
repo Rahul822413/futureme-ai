@@ -13,11 +13,10 @@ function generateGrowthProjection(skillScore, consistencyScore, riskScore, decis
 
   // Decision bonus
   let decisionBonus = 0;
-  if (decision.includes('ai') || decision.includes('machine learning') || decision.includes('ml')) decisionBonus = 0.8;
-  else if (decision.includes('coding') || decision.includes('code') || decision.includes('programming')) decisionBonus = 0.7;
-  else if (decision.includes('communication')) decisionBonus = 0.5;
-  else if (decision.includes('gate') || decision.includes('exam')) decisionBonus = 0.4;
-  else if (decision.includes('freelanc')) decisionBonus = 0.6;
+  if (decision.includes('ai') || decision.includes('ml') || decision.includes('usmle') || decision.includes('neet') || decision.includes('mba') || decision.includes('bar exam')) decisionBonus = 0.8;
+  else if (decision.includes('coding') || decision.includes('design') || decision.includes('startup') || decision.includes('freelanc')) decisionBonus = 0.7;
+  else if (decision.includes('communication') || decision.includes('network')) decisionBonus = 0.5;
+  else if (decision.includes('exam') || decision.includes('certification')) decisionBonus = 0.4;
   else if (decision.includes('social media')) decisionBonus = -0.3;
   else decisionBonus = 0.3;
 

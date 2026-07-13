@@ -49,14 +49,70 @@ const SimulationFormPage = () => {
     }
   };
 
-  const chips = [
-    "What if I learn AI for the next 1 year?",
-    "What if I spend 2 hours daily coding?",
-    "What if I improve communication skills?",
-    "What if I prepare for GATE?",
-    "What if I start freelancing?",
-    "What if I reduce social media usage?"
-  ];
+  const getDomainInfo = (field, careerGoal) => {
+    const combined = `${field} ${careerGoal}`.toLowerCase();
+    
+    if (combined.includes('medic') || combined.includes('health') || combined.includes('doctor') || combined.includes('nurs') || combined.includes('surgery')) {
+      return {
+        type: 'medicine',
+        primarySkill: 'Clinical Knowledge',
+        secondarySkill: 'Medical Technology',
+        practiceHours: 'Study Hours/Day',
+        chips: ["What if I prepare for NEET PG/USMLE?", "What if I start clinical rotations?", "What if I publish a research paper?", "What if I shadow a specialist?"]
+      };
+    } else if (combined.includes('business') || combined.includes('finance') || combined.includes('mba') || combined.includes('market') || combined.includes('manage')) {
+      return {
+        type: 'business',
+        primarySkill: 'Business Strategy',
+        secondarySkill: 'Market Analysis',
+        practiceHours: 'Strategy Hours/Day',
+        chips: ["What if I start a startup?", "What if I get an MBA?", "What if I build a professional network?", "What if I analyze 2 case studies daily?"]
+      };
+    } else if (combined.includes('art') || combined.includes('design') || combined.includes('ui/ux') || combined.includes('animat')) {
+      return {
+        type: 'design',
+        primarySkill: 'Design Skill',
+        secondarySkill: 'Creative Trends',
+        practiceHours: 'Creative Hours/Day',
+        chips: ["What if I build my portfolio daily?", "What if I learn a new design tool?", "What if I start a freelance design business?", "What if I participate in design challenges?"]
+      };
+    } else if (combined.includes('law') || combined.includes('legal') || combined.includes('attorney')) {
+      return {
+        type: 'law',
+        primarySkill: 'Legal Reasoning',
+        secondarySkill: 'Case Law Knowledge',
+        practiceHours: 'Case Study Hours/Day',
+        chips: ["What if I prepare for the Bar exam?", "What if I intern at a corporate law firm?", "What if I write legal research papers?", "What if I participate in moot court?"]
+      };
+    } else if (combined.includes('teach') || combined.includes('educat') || combined.includes('professor')) {
+      return {
+        type: 'education',
+        primarySkill: 'Teaching Skill',
+        secondarySkill: 'EdTech Knowledge',
+        practiceHours: 'Lesson Prep Hours/Day',
+        chips: ["What if I get a Master's degree?", "What if I adopt new teaching methodologies?", "What if I create an online course?", "What if I focus on student psychology?"]
+      };
+    } else if (combined.includes('computer') || combined.includes('software') || combined.includes('it') || combined.includes('tech') || combined.includes('ai') || combined.includes('engineer')) {
+      return {
+        type: 'tech',
+        primarySkill: 'Coding Skill',
+        secondarySkill: 'AI/ML Knowledge',
+        practiceHours: 'Coding Hours/Day',
+        chips: ["What if I learn AI for the next 1 year?", "What if I spend 2 hours daily coding?", "What if I contribute to open source?", "What if I start freelancing?", "What if I reduce social media usage?"]
+      };
+    } else {
+      return {
+        type: 'general',
+        primarySkill: 'Core Domain Skill',
+        secondarySkill: 'Industry Knowledge',
+        practiceHours: 'Skill Practice Hours/Day',
+        chips: ["What if I practice my craft 2 hours daily?", "What if I improve my communication skills?", "What if I get a professional certification?", "What if I reduce social media usage?", "What if I start a side hustle?"]
+      };
+    }
+  };
+
+  const domainInfo = getDomainInfo(profile.field, profile.careerGoal);
+  const chips = domainInfo.chips;
 
   return (
     <div className="min-h-screen p-6 md:p-10 flex flex-col items-center">
@@ -94,7 +150,11 @@ const SimulationFormPage = () => {
             
             <h2 className="text-2xl font-bold border-b border-white/10 pb-4 mt-8">Integrations (Optional)</h2>
             <div className="grid grid-cols-1 gap-4">
-              <div><label className="block text-gray-400 mb-1 text-sm">GitHub Username (Auto-syncs coding consistency)</label><input type="text" name="githubUsername" value={profile.githubUsername || ''} onChange={handleChange} placeholder="e.g. octocat" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" /></div>
+              {domainInfo.type === 'tech' ? (
+                <div><label className="block text-gray-400 mb-1 text-sm">GitHub Username (Auto-syncs coding consistency)</label><input type="text" name="githubUsername" value={profile.githubUsername || ''} onChange={handleChange} placeholder="e.g. octocat" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" /></div>
+              ) : (
+                <p className="text-gray-500 text-sm italic">No automated integrations available for {domainInfo.type} yet.</p>
+              )}
             </div>
 
             <div className="flex justify-end pt-4">
@@ -107,9 +167,9 @@ const SimulationFormPage = () => {
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6">
             <h2 className="text-2xl font-bold border-b border-white/10 pb-4">Current Skills</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
-              <div className="mb-4"><div className="flex justify-between text-sm mb-1"><span className="text-gray-300">Coding Skill</span><span className="text-primary font-bold">{profile.codingSkill}/10</span></div><input type="range" min={0} max={10} value={profile.codingSkill} onChange={e => handleSlider('codingSkill', e.target.value)} /></div>
+              <div className="mb-4"><div className="flex justify-between text-sm mb-1"><span className="text-gray-300">{domainInfo.primarySkill}</span><span className="text-primary font-bold">{profile.codingSkill}/10</span></div><input type="range" min={0} max={10} value={profile.codingSkill} onChange={e => handleSlider('codingSkill', e.target.value)} /></div>
               <div className="mb-4"><div className="flex justify-between text-sm mb-1"><span className="text-gray-300">Communication</span><span className="text-primary font-bold">{profile.communicationSkill}/10</span></div><input type="range" min={0} max={10} value={profile.communicationSkill} onChange={e => handleSlider('communicationSkill', e.target.value)} /></div>
-              <div className="mb-4"><div className="flex justify-between text-sm mb-1"><span className="text-gray-300">AI/ML Knowledge</span><span className="text-primary font-bold">{profile.aiKnowledge}/10</span></div><input type="range" min={0} max={10} value={profile.aiKnowledge} onChange={e => handleSlider('aiKnowledge', e.target.value)} /></div>
+              <div className="mb-4"><div className="flex justify-between text-sm mb-1"><span className="text-gray-300">{domainInfo.secondarySkill}</span><span className="text-primary font-bold">{profile.aiKnowledge}/10</span></div><input type="range" min={0} max={10} value={profile.aiKnowledge} onChange={e => handleSlider('aiKnowledge', e.target.value)} /></div>
               <div className="mb-4"><div className="flex justify-between text-sm mb-1"><span className="text-gray-300">Problem Solving</span><span className="text-primary font-bold">{profile.problemSolving}/10</span></div><input type="range" min={0} max={10} value={profile.problemSolving} onChange={e => handleSlider('problemSolving', e.target.value)} /></div>
               <div className="mb-4"><div className="flex justify-between text-sm mb-1"><span className="text-gray-300">Leadership</span><span className="text-primary font-bold">{profile.leadership}/10</span></div><input type="range" min={0} max={10} value={profile.leadership} onChange={e => handleSlider('leadership', e.target.value)} /></div>
               <div className="mb-4"><div className="flex justify-between text-sm mb-1"><span className="text-gray-300">Creativity</span><span className="text-primary font-bold">{profile.creativity}/10</span></div><input type="range" min={0} max={10} value={profile.creativity} onChange={e => handleSlider('creativity', e.target.value)} /></div>
@@ -117,7 +177,7 @@ const SimulationFormPage = () => {
 
             <h2 className="text-2xl font-bold border-b border-white/10 pb-4 mt-8">Daily Habits</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
-              <div className="mb-4"><div className="flex justify-between text-sm mb-1"><span className="text-gray-300">Coding Hours/Day</span><span className="text-primary font-bold">{profile.codingHours}/12</span></div><input type="range" min={0} max={12} value={profile.codingHours} onChange={e => handleSlider('codingHours', e.target.value)} /></div>
+              <div className="mb-4"><div className="flex justify-between text-sm mb-1"><span className="text-gray-300">{domainInfo.practiceHours}</span><span className="text-primary font-bold">{profile.codingHours}/12</span></div><input type="range" min={0} max={12} value={profile.codingHours} onChange={e => handleSlider('codingHours', e.target.value)} /></div>
               <div className="mb-4"><div className="flex justify-between text-sm mb-1"><span className="text-gray-300">Learning Hours/Day</span><span className="text-primary font-bold">{profile.learningHours}/12</span></div><input type="range" min={0} max={12} value={profile.learningHours} onChange={e => handleSlider('learningHours', e.target.value)} /></div>
               <div className="mb-4"><div className="flex justify-between text-sm mb-1"><span className="text-gray-300">Social Media Hours/Day</span><span className="text-primary font-bold">{profile.socialMediaUsage}/12</span></div><input type="range" min={0} max={12} value={profile.socialMediaUsage} onChange={e => handleSlider('socialMediaUsage', e.target.value)} /></div>
               <div className="mb-4"><div className="flex justify-between text-sm mb-1"><span className="text-gray-300">Consistency Level</span><span className="text-primary font-bold">{profile.consistencyLevel}/10</span></div><input type="range" min={0} max={10} value={profile.consistencyLevel} onChange={e => handleSlider('consistencyLevel', e.target.value)} /></div>
