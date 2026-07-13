@@ -2,8 +2,10 @@ const { Pool } = require('pg');
 const bcrypt = require('bcryptjs');
 
 // Connect to Postgres
+const isProduction = process.env.NODE_ENV === 'production';
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/futureme'
+  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/futureme',
+  ssl: isProduction ? { rejectUnauthorized: false } : false
 });
 
 // Helper to convert SQLite '?' to Postgres '$1, $2'
