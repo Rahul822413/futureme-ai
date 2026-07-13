@@ -23,25 +23,20 @@ By inputting their current skills, daily habits, education field, and a specific
 ## 🛠️ Technology Stack
 
 ### Frontend (Client-Side)
-- **Framework:** React.js (via Vite for lightning-fast builds)
-- **Styling:** Tailwind CSS (for modern, responsive utility-class styling)
-- **Animations:** Framer Motion (for fluid, premium micro-animations and page transitions)
-- **UI Design:** Custom Glassmorphism UI with an immersive, interactive 3D Galaxy background.
-- **Routing:** React Router DOM
-- **Icons:** React Icons
+- **React.js & Vite:** We chose React for its component-based architecture, which makes building complex forms and interactive dashboards highly scalable. Vite was chosen over Create React App because it offers significantly faster hot-module reloading (HMR) and optimized build speeds.
+- **Tailwind CSS:** Chosen for its utility-first approach, allowing us to rapidly prototype and build modern, responsive designs without constantly switching between CSS and JS files. It keeps the bundle size small by stripping unused classes.
+- **Framer Motion:** Used to create fluid, physics-based micro-animations and page transitions. It elevates the platform from a standard web app to a premium, "wow-factor" experience.
+- **React Router DOM:** Essential for creating a seamless Single Page Application (SPA) experience, allowing users to navigate between the form, dashboard, and simulation results without page reloads.
 
 ### Backend (Server-Side)
-- **Runtime:** Node.js
-- **Framework:** Express.js (RESTful API architecture)
-- **AI Integration:** Google GenAI SDK (`@google/genai`) utilizing the **Gemini 2.5 Flash** model for high-speed, dynamic text generation.
-- **Authentication:** JSON Web Tokens (JWT) for stateless sessions, and `bcryptjs` for secure password hashing.
+- **Node.js & Express.js:** JavaScript was chosen for the backend to maintain a unified language across the entire stack (MERN-like architecture). Express provides a lightweight, unopinionated framework perfect for building fast RESTful APIs.
+- **Google Gemini 2.5 Flash API:** We selected Gemini over OpenAI because Gemini Flash is optimized for high-speed, dynamic text generation at a very low latency, which is critical for generating large 5-year simulation narratives in real-time.
+- **JWT & bcryptjs:** JSON Web Tokens (JWT) allow for stateless, secure user sessions without burdening the server memory. `bcryptjs` ensures that user passwords are mathematically hashed and salted before hitting the database, maintaining high security standards.
 
 ### Database
-- **Engine:** PostgreSQL (Relational Database)
-- **Driver:** `pg` (Node Postgres with connection pooling)
-- **Schema:** Highly relational structure connecting Users, Profiles, and Simulations with cascading deletions.
+- **PostgreSQL:** We migrated from SQLite to PostgreSQL because Postgres is a robust, production-grade relational database. It excels at handling concurrent connections and complex relational queries (linking Users to Profiles to Simulations).
+- **`pg` (Node Postgres):** Chosen to handle connection pooling, ensuring the server doesn't crash under heavy database query loads.
 
 ### Deployment & DevOps
-- **Hosting:** Render (Platform as a Service)
-- **Version Control:** Git & GitHub
-- **Environment Management:** `.env` for securing API keys, Database URLs, and JWT Secrets.
+- **Render:** Chosen as our Platform as a Service (PaaS) because it natively supports both our Node.js backend and our PostgreSQL database in the same secure ecosystem, offering seamless CI/CD (Continuous Integration/Continuous Deployment) directly from GitHub.
+- **GitHub:** Used for version control to track code changes, manage collaboration, and trigger automatic deployments to Render whenever new code is pushed to the `main` branch.
