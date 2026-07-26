@@ -1,60 +1,78 @@
 const { Pool } = require('pg');
+const sqlite3 = require('sqlite3').verbose();
 const bcrypt = require('bcryptjs');
 
-// Connect to Postgres
-const isProduction = process.env.NODE_ENV === 'production';
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/futureme',
-  ssl: isProduction ? { rejectUnauthorized: false } : false
-});
+const isProduction = false; // Forced false to use SQLite on Render until DB is fixed
+let pool;
+let sqliteDb;
 
-// Helper to convert SQLite '?' to Postgres '$1, $2'
+if (isProduction) {
+  pool = new Pool({
+    connectionString: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/futureme',
+    ssl: { rejectUnauthorized: false }
+  });
+} else {
+  sqliteDb = new sqlite3.Database(process.env.DB_PATH || './futureme.db');
+}
+
 async function query(sqlText, params = []) {
-  let i = 1;
-  const pgSql = sqlText.replace(/\?/g, () => `$${i++}`);
-  
-  // Also fix standard SQLite syntax differences silently if they exist
-  // like datetime('now') -> CURRENT_TIMESTAMP
-  const finalSql = pgSql.replace(/datetime\('now'\)/g, 'CURRENT_TIMESTAMP')
-                        .replace(/INSERT OR IGNORE/g, 'INSERT') // ON CONFLICT is complex, assuming simple insert
-                        // Actually, ON CONFLICT DO NOTHING is Postgres equivalent
-                        .replace(/INSERT INTO profiles \(/g, 'INSERT INTO profiles ('); 
+  if (isProduction) {
+    let i = 1;
+    const pgSql = sqlText.replace(/\?/g, () => `$${i++}`)
+                         .replace(/datetime\('now'\)/g, 'CURRENT_TIMESTAMP')
+                         .replace(/INSERT OR IGNORE/g, 'INSERT');
+                         
+    const seedSql = pgSql.replace(/\) ON CONFLICT DO NOTHING/g, ') ON CONFLICT (user_id) DO NOTHING');
 
-  // Since INSERT OR IGNORE is complex to regex, let's fix it explicitly for the seed:
-  const seedSql = finalSql.replace(/INSERT INTO profiles \(id, user_id/g, 'INSERT INTO profiles (id, user_id')
-                          .replace(/VALUES \(\$1, \$2/g, 'VALUES ($1, $2')
-                          .replace(/\) ON CONFLICT DO NOTHING/g, ') ON CONFLICT (user_id) DO NOTHING');
-
-  try {
-    return await pool.query(seedSql, params);
-  } catch (err) {
-    // Basic error logging
-    console.error('DB Query Error:', err.message, '\\nSQL:', seedSql, '\\nParams:', params);
-    throw err;
+    try {
+      const res = await pool.query(seedSql, params);
+      return res.rows;
+    } catch (err) {
+      console.error('PG Error:', err.message, '\\nSQL:', seedSql, '\\nParams:', params);
+      throw err;
+    }
+  } else {
+    return new Promise((resolve, reject) => {
+      sqliteDb.all(sqlText, params, function(err, rows) {
+        if (err) {
+          console.error('SQLite Error:', err.message, '\\nSQL:', sqlText, '\\nParams:', params);
+          reject(err);
+        } else {
+          resolve(rows || []);
+        }
+      });
+    });
   }
 }
 
 const db = {
   get: async (sql, ...params) => {
     const args = (params.length === 1 && Array.isArray(params[0])) ? params[0] : params;
-    const res = await query(sql, args);
-    return res.rows[0];
+    const rows = await query(sql, args);
+    return rows && rows.length > 0 ? rows[0] : undefined;
   },
   all: async (sql, ...params) => {
     const args = (params.length === 1 && Array.isArray(params[0])) ? params[0] : params;
-    const res = await query(sql, args);
-    return res.rows;
+    return await query(sql, args);
   },
   run: async (sql, ...params) => {
     const args = (params.length === 1 && Array.isArray(params[0])) ? params[0] : params;
     return await query(sql, args);
   },
   exec: async (sql) => {
-    return await pool.query(sql);
+    if (isProduction) {
+      return await pool.query(sql);
+    } else {
+      return new Promise((resolve, reject) => {
+        sqliteDb.exec(sql, function(err) {
+          if (err) reject(err);
+          else resolve();
+        });
+      });
+    }
   }
 };
 
-// Create tables
 async function initDB() {
   await db.exec(`
     CREATE TABLE IF NOT EXISTS users (
@@ -115,12 +133,11 @@ async function initDB() {
     );
   `);
 
-  seedDemoUsers();
+  await seedDemoUsers();
 }
 
-// Seed demo users
 async function seedDemoUsers() {
-  const existingStudent = await db.get('SELECT id FROM users WHERE email = $1', ['student@futureme.ai']);
+  const existingStudent = await db.get('SELECT id FROM users WHERE email = ?', ['student@futureme.ai']);
   
   if (!existingStudent) {
     const { v4: uuidv4 } = require('uuid');
@@ -129,24 +146,24 @@ async function seedDemoUsers() {
     const studentPass = bcrypt.hashSync('student123', 10);
     const adminPass = bcrypt.hashSync('admin123', 10);
 
-    await db.run(`INSERT INTO users (id, name, email, password, role, is_admin) VALUES ($1, $2, $3, $4, $5, $6)`, 
+    await db.run(`INSERT INTO users (id, name, email, password, role, is_admin) VALUES (?, ?, ?, ?, ?, ?)`, 
       [studentId, 'Demo Student', 'student@futureme.ai', studentPass, 'student', 0]);
 
-    await db.run(`INSERT INTO users (id, name, email, password, role, is_admin) VALUES ($1, $2, $3, $4, $5, $6)`, 
+    await db.run(`INSERT INTO users (id, name, email, password, role, is_admin) VALUES (?, ?, ?, ?, ?, ?)`, 
       [adminId, 'Admin User', 'admin@futureme.ai', adminPass, 'admin', 1]);
 
-    // Seed a demo profile for student
-    await db.run(`INSERT INTO profiles (id, user_id, age, education, field, current_year,
+    await db.run(`INSERT OR IGNORE INTO profiles (id, user_id, age, education, field, current_year,
       coding_skill, communication_skill, ai_knowledge, problem_solving, leadership, creativity, financial_discipline,
       career_goal, skill_goal, coding_hours, learning_hours, social_media_usage, consistency_level)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19) ON CONFLICT DO NOTHING`,
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [uuidv4(), studentId, 20, 'B.Tech', 'Computer Science', '2nd Year',
         7, 5, 6, 7, 4, 6, 5, 'Software Engineer', 'AI and Full-Stack Development', 2, 1.5, 3, 6]);
 
-    console.log('✅ Demo users seeded successfully in Postgres');
+    console.log('✅ Demo users seeded successfully');
   }
 }
 
 initDB().catch(console.error);
 
 module.exports = db;
+;
