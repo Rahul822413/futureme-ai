@@ -6,10 +6,6 @@ services:
     buildCommand: "cd frontend && npm install --include=dev && npm run build && cd ../backend && npm install"
     startCommand: "cd backend && npm start"
     envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: futureme-db
-          property: connectionString
       - key: NODE_ENV
         value: production
       - key: NODE_VERSION
@@ -18,8 +14,3 @@ services:
         sync: false
       - key: JWT_SECRET
         value: c8d9e2b1f4a6730cd9a4358f2e1a3b8d7c4f6a9b2d1e0f3c6b5a8d7e9f2a4c1
-
-databases:
-  - name: futureme-db
-    plan: free
-    postgresMajorVersion: 16
